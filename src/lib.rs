@@ -3,6 +3,7 @@ use std::{
     fmt::{Display, Formatter},
 };
 
+use cached::proc_macro::cached;
 use serde::Serialize;
 
 mod graphql;
@@ -28,10 +29,10 @@ impl Display for Error {
 }
 
 #[derive(Serialize)]
-pub struct Language {
-    pub name: String,
-    pub stars: f64,
-    pub color: String,
+struct Language {
+    name: String,
+    stars: f64,
+    color: String,
 
     #[serde(skip)]
     lines: u32,
@@ -73,10 +74,10 @@ struct Repository {
 }
 
 #[derive(Serialize)]
-pub struct User {
-    pub name: String,
-    pub languages: Vec<Language>,
-    pub stars: u32,
+struct User {
+    name: String,
+    languages: Vec<Language>,
+    stars: u32,
 
     login: String,
 
@@ -85,7 +86,7 @@ pub struct User {
 }
 
 impl User {
-    pub fn new(login: String) -> Self {
+    fn new(login: String) -> Self {
         Self {
             login,
             languages: Vec::new(),
@@ -151,7 +152,7 @@ impl User {
             .sort_by(|a, b| b.stars.partial_cmp(&a.stars).unwrap());
     }
 
-    pub async fn load(&mut self, token: &String) -> Result<(), Error> {
+    async fn load(&mut self, token: String) -> Result<(), Error> {
         let mut cursor: Option<String> = None;
         loop {
             let query = graphql::Request::new(self.login.to_string(), cursor);
@@ -159,7 +160,7 @@ impl User {
             let resp = reqwest::Client::new()
                 .post(API_URL)
                 .header("User-Agent", &self.login)
-                .bearer_auth(token)
+                .bearer_auth(&token)
                 .body(body)
                 .send()
                 .await
@@ -173,7 +174,7 @@ impl User {
                 .await
                 .map_err(Error::Http)?;
             self.store_repos(body.data.user.repositories.edges);
-            self.name = body.data.user.name.unwrap_or(self.login.clone());
+            self.name = body.data.user.name.unwrap_or_else(|| self.login.clone());
             if !body.data.user.repositories.page_info.has_next_page {
                 break;
             }
@@ -183,4 +184,11 @@ impl User {
         self.merge_and_sort();
         Ok(())
     }
+}
+
+#[cached(time = 604800, result = true)] // one week cache
+pub async fn json_for(login: String, token: String) -> Result<String, Error> {
+    let mut user = User::new(login);
+    user.load(token).await?;
+    serde_json::to_string(&user).map_err(Error::Serializer)
 }

@@ -4,7 +4,6 @@ use actix_web::{
 use derive_more::Display;
 use log::{error, info};
 
-use astronomer::User;
 
 const APP: &str = include_str!("app.js");
 const TEMPLATE: &str = include_str!("index.html");
@@ -18,9 +17,6 @@ enum HttpError {
 
     #[display(fmt = "Could not connect to GitHUb or reading the response.")]
     GitHubClientError,
-
-    #[display(fmt = "Error serializing the response.")]
-    SerializerError,
 }
 
 impl ResponseError for HttpError {
@@ -32,10 +28,6 @@ impl ResponseError for HttpError {
             }
             HttpError::GitHubClientError => {
                 error!("Error connecting to GitHub or reading their response.");
-                HttpResponse::InternalServerError().finish()
-            }
-            HttpError::SerializerError => {
-                error!("Error serializing the response.");
                 HttpResponse::InternalServerError().finish()
             }
         }
@@ -51,13 +43,12 @@ async fn js() -> Result<HttpResponse, Error> {
 
 #[get("/{name}.json")]
 async fn api(name: web::Path<String>) -> Result<HttpResponse, Error> {
-    let token = std::env::var(TOKEN).map_err(|_| HttpError::MissingToken)?;
-    let mut data = User::new(name.to_string());
-    data.load(&token).await.map_err(|err| {
-        error!("{}", err);
-        return HttpError::GitHubClientError;
-    })?;
-    let output = serde_json::to_string(&data).map_err(|_| HttpError::SerializerError)?;
+    let output = astronomer::json_for(
+        name.to_string(),
+        std::env::var(TOKEN).map_err(|_| HttpError::MissingToken)?,
+    )
+    .await
+    .map_err(|_| HttpError::GitHubClientError)?;
     Ok(HttpResponse::Ok()
         .insert_header(ContentType(mime::APPLICATION_JSON))
         .body(output))
