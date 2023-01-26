@@ -69,7 +69,7 @@ async fn user(name: web::Path<String>) -> Result<HttpResponse, Error> {
 #[get("/{name}/")]
 async fn redirect(name: web::Path<String>) -> Result<HttpResponse, Error> {
     Ok(HttpResponse::TemporaryRedirect()
-        .append_header(("Location", format!("/{}", name)))
+        .append_header(("Location", format!("/{name}")))
         .finish())
 }
 

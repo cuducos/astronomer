@@ -21,9 +21,9 @@ pub enum Error {
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         match self {
-            Error::Serializer(err) => write!(f, "Serializer error: {}", err),
-            Error::Http(err) => write!(f, "HTTP error: {}", err),
-            Error::HttpStatus(status) => write!(f, "HTTP status error: {}", status),
+            Error::Serializer(err) => write!(f, "Serializer error: {err}"),
+            Error::Http(err) => write!(f, "HTTP error: {err}"),
+            Error::HttpStatus(status) => write!(f, "HTTP status error: {status}"),
         }
     }
 }
