@@ -11,7 +11,7 @@ const configFor = function (name, stars, data) {
         },
         title: {
           display: true,
-          text: `${name}'s GitHub ${stars} Stats`,
+          text: `${name}'s GitHub ${stars} Stars`,
         },
       },
     },
