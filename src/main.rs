@@ -4,7 +4,6 @@ use actix_web::{
 use derive_more::Display;
 use log::{error, info};
 
-
 const APP: &str = include_str!("app.js");
 const TEMPLATE: &str = include_str!("index.html");
 const DEFAULT_USER_PATH: &str = "/cuducos";
@@ -12,10 +11,10 @@ const TOKEN: &str = "ASTRONOMER_GITHUB_TOKEN";
 
 #[derive(Debug, Display)]
 enum HttpError {
-    #[display(fmt = "Missing token on the server side.")]
+    #[display("Missing token on the server side.")]
     MissingToken,
 
-    #[display(fmt = "Could not connect to GitHUb or reading the response.")]
+    #[display("Could not connect to GitHUb or reading the response.")]
     GitHubClientError,
 }
 
