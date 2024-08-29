@@ -36,7 +36,7 @@ const init = function () {
   label.hidden = true;
 
   const chart = document.getElementById("chart");
-  fetch(`/${chart.dataset.userName}.json`).then((response) =>
+  fetch(`/${chart.dataset.userName}.json${window.location.search}`).then((response) =>
     response.json().then((astronomer) => {
       new Chart(
         chart,

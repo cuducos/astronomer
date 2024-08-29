@@ -1,10 +1,10 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     fmt::{Display, Formatter},
 };
 
 use cached::proc_macro::cached;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 mod graphql;
 
@@ -28,7 +28,7 @@ impl Display for Error {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 struct Language {
     name: String,
     stars: f64,
@@ -67,13 +67,13 @@ impl Language {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 struct Repository {
     languages: Vec<Language>,
     stars: u32,
 }
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 struct User {
     name: String,
     languages: Vec<Language>,
@@ -186,9 +186,44 @@ impl User {
     }
 }
 
-#[cached(time = 604800, result = true)] // one week cache
-pub async fn json_for(login: String, token: String) -> Result<String, Error> {
+#[cached(time = 86400, result = true)] // one day cache
+async fn cached_json_for(login: String, token: String) -> Result<User, Error> {
     let mut user = User::new(login);
     user.load(token).await?;
+    Ok(user)
+}
+
+#[derive(Deserialize)]
+pub struct RawConfig {
+    exclude: Option<String>,
+    top: Option<usize>,
+}
+
+pub struct Config {
+    exclude: HashSet<String>,
+    top: usize,
+}
+
+impl Config {
+    pub fn from_raw(config: &RawConfig) -> Self {
+        Self {
+            exclude: config
+                .exclude
+                .as_ref()
+                .map(|s| s.split(',').map(|s| s.trim().to_string()).collect())
+                .unwrap_or_default(),
+            top: config.top.unwrap_or(0),
+        }
+    }
+}
+
+pub async fn json_for(login: String, token: String, config: Config) -> Result<String, Error> {
+    let mut user = cached_json_for(login, token).await?;
+    if !config.exclude.is_empty() {
+        user.languages.retain(|l| !config.exclude.contains(&l.name));
+    }
+    if config.top > 0 {
+        user.languages = user.languages.into_iter().take(config.top).collect();
+    }
     serde_json::to_string(&user).map_err(Error::Serializer)
 }

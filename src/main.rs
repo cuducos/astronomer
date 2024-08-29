@@ -41,10 +41,14 @@ async fn js() -> Result<HttpResponse, Error> {
 }
 
 #[get("/{name}.json")]
-async fn api(name: web::Path<String>) -> Result<HttpResponse, Error> {
+async fn api(
+    name: web::Path<String>,
+    config: web::Query<astronomer::RawConfig>,
+) -> Result<HttpResponse, Error> {
     let output = astronomer::json_for(
         name.to_string(),
         std::env::var(TOKEN).map_err(|_| HttpError::MissingToken)?,
+        astronomer::Config::from_raw(&config),
     )
     .await
     .map_err(|_| HttpError::GitHubClientError)?;
