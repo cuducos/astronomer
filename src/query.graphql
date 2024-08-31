@@ -13,6 +13,7 @@ query ($login: String!, $cursor: String) {
       }
       edges {
         node {
+          nameWithOwner
           stargazerCount
           languages(first: 100) {
             edges {

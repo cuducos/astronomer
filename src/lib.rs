@@ -29,10 +29,17 @@ impl Display for Error {
 }
 
 #[derive(Clone, Serialize)]
+struct Partial {
+    repository: String,
+    stars: f64,
+}
+
+#[derive(Clone, Serialize)]
 struct Language {
     name: String,
     stars: f64,
     color: String,
+    source: Vec<Partial>,
 
     #[serde(skip)]
     lines: u32,
@@ -43,32 +50,28 @@ impl Language {
         Self {
             name,
             stars: 0.0,
-            lines: 0,
             color,
-        }
-    }
-
-    fn clone(old: &Self) -> Self {
-        Self {
-            name: old.name.clone(),
-            stars: old.stars,
-            lines: old.lines,
-            color: old.color.clone(),
+            source: vec![],
+            lines: 0,
         }
     }
 
     fn merge(&self, old: &Self) -> Self {
+        let mut source = self.source.clone();
+        source.extend(old.source.clone());
         Self {
             name: self.name.clone(),
             stars: self.stars + old.stars,
             lines: self.lines + old.lines,
             color: old.color.clone(),
+            source,
         }
     }
 }
 
 #[derive(Clone, Serialize)]
 struct Repository {
+    name: String,
     languages: Vec<Language>,
     stars: u32,
 }
@@ -113,10 +116,12 @@ impl User {
                         .unwrap_or(DEFAULT_COLOR)
                         .to_string(),
                     stars: 0.0,
+                    source: vec![],
                 })
                 .collect();
 
             self.repositories.push(Repository {
+                name: edge.node.name.clone(),
                 stars: edge.node.stargazer_count,
                 languages,
             });
@@ -138,18 +143,29 @@ impl User {
 
     fn merge_and_sort(&mut self) {
         let mut non_sorted = HashMap::<String, Language>::new();
-        for repo in &self.repositories {
-            for language in &repo.languages {
+        for repo in self.repositories.iter_mut() {
+            for language in repo.languages.iter_mut() {
                 let current = match non_sorted.get(&language.name) {
-                    Some(current) => Language::clone(current),
+                    Some(current) => current.clone(),
                     None => Language::new(language.name.clone(), language.color.clone()),
                 };
+                if language.stars > 0.0 {
+                    language.source.push(Partial {
+                        repository: repo.name.clone(),
+                        stars: language.stars,
+                    });
+                }
                 non_sorted.insert(language.name.clone(), language.merge(&current));
             }
         }
         self.languages = Vec::from_iter(non_sorted.into_values().filter(|lang| lang.stars > 0.0));
         self.languages
             .sort_by(|a, b| b.stars.partial_cmp(&a.stars).unwrap());
+        for language in self.languages.iter_mut() {
+            language
+                .source
+                .sort_by(|a, b| b.stars.partial_cmp(&a.stars).unwrap());
+        }
     }
 
     async fn load(&mut self, token: String) -> Result<(), Error> {

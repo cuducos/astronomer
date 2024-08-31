@@ -63,6 +63,8 @@ pub struct RepositoryEdge {
 
 #[derive(Deserialize)]
 pub struct RepositoryNode {
+    #[serde(rename = "nameWithOwner")]
+    pub name: String,
     #[serde(rename = "stargazerCount")]
     pub stargazer_count: u32,
     pub languages: Languages,
