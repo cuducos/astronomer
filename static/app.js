@@ -1,3 +1,5 @@
+import init, { color } from "./frontend.js";
+
 const configFor = function (name, stars, data) {
   return {
     type: "bar",
@@ -28,16 +30,6 @@ const configFor = function (name, stars, data) {
   };
 };
 
-const colorFor = function (hex, position, total) {
-  if (total <= 1) return hex;
-  const percent = 1 - position / (total - 1);
-  const r = parseInt(hex.substring(1, 3), 16);
-  const g = parseInt(hex.substring(3, 5), 16);
-  const b = parseInt(hex.substring(5, 7), 16);
-  const a = 0.25 + percent * 0.75;
-  return `rgba(${r}, ${g}, ${b}, ${a})`;
-};
-
 const dataFor = function (languages) {
   return {
     labels: languages.map((language) => language.name),
@@ -46,11 +38,10 @@ const dataFor = function (languages) {
         return language.source.map((source, i) => {
           let data = Array(languages.length).fill(0);
           data[idx] = source.stars;
-          const color = colorFor(language.color, i, language.source.length);
           return {
             label: source.repository,
             data: data,
-            backgroundColor: color,
+            backgroundColor: color(language.color, i, language.source.length),
             borderRadius: 2,
             language: language.name,
             total: language.stars,
@@ -61,7 +52,7 @@ const dataFor = function (languages) {
   };
 };
 
-const init = function () {
+const run = function () {
   const chart = document.getElementById("chart");
   const label = document.getElementById("desc");
   label.hidden = true;
@@ -88,6 +79,8 @@ const init = function () {
 };
 
 window.onload = () => {
-  if (document.readyState !== "loading") return init();
-  document.addEventListener("DOMContentLoaded", init);
+  init().then(() => {
+    if (document.readyState !== "loading") return run();
+    document.addEventListener("DOMContentLoaded", run);
+  });
 };

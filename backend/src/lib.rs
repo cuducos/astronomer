@@ -1,10 +1,10 @@
+use cached::proc_macro::cached;
+use serde::{Deserialize, Serialize};
+use std::iter::FromIterator;
 use std::{
     collections::{HashMap, HashSet},
     fmt::{Display, Formatter},
 };
-
-use cached::proc_macro::cached;
-use serde::{Deserialize, Serialize};
 
 mod graphql;
 

@@ -24,10 +24,3 @@ Wanna use the data without Astronomer's visualization? No problem, just append `
 * [`https://astronomer.onrender.com/cuducos.json`](https://astronomer.onrender.com/cuducos.json)
 
 * [`https://astronomer.onrender.com/cuducos.json?exclude=HTML, Mako&top=5`](https://astronomer.onrender.com/cuducos.json?exclude=HTML,%20Mako&top=5)
-
-
-## Boring stuff
-
-Get a [personal access token from GitHub](https://github.com/settings/tokens) with `public_repo` and `read_user` scopes, and save it as an environment variable called `ASTRONOMER_GITHUB_TOKEN`.
-
-If you don’t have a `PORT` environment variable, astronomer will use `8000` for the HTTP server. From there, `cargo run` will get you started. All the fun happens at [`localhost:8000`](http://localhost:8000) (unless you use a different port). You are ready to type different GitHub usernames in the URL address bar and stalk them.
