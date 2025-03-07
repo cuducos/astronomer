@@ -20,5 +20,4 @@ WORKDIR /astronomer
 COPY static/app.js static/app.js
 COPY --from=build /astronomer/static/frontend* static/
 COPY --from=build /usr/local/bin/backend /usr/local/bin/backend
-EXPOSE 8080
 CMD ["backend"]
