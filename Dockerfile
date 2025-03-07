@@ -17,6 +17,7 @@ RUN mkdir static && \
 
 FROM debian:bullseye-slim
 WORKDIR /astronomer
+RUN apt-get -y update && apt-get install -y ca-certificates
 COPY static/app.js static/app.js
 COPY --from=build /astronomer/static/frontend* static/
 COPY --from=build /usr/local/bin/backend /usr/local/bin/backend
