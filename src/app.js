@@ -61,11 +61,6 @@ const dataFor = function (languages) {
   };
 };
 
-const relevant = function (languages) {
-  if (languages.length <= 1) return languages;
-  const threshold = languages[0].stars * 0.01;
-  return languages.filter((language) => language.stars >= threshold);
-};
 
 const init = function () {
   const label = document.getElementById("desc");
@@ -74,10 +69,9 @@ const init = function () {
   fetch(`/${chart.dataset.userName}.json${window.location.search}`).then(
     (response) =>
       response.json().then((astronomer) => {
-        const languages = relevant(astronomer.languages);
         new Chart(
           chart,
-          configFor(astronomer.name, astronomer.stars, dataFor(languages)),
+          configFor(astronomer.name, astronomer.stars, dataFor(astronomer.languages)),
         );
         label.hidden = false;
       }),
