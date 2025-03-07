@@ -20,7 +20,7 @@ pub fn color(hex: String, position: usize, total: usize) -> String {
             let a = 0.25 + p * 0.75;
             format!("rgba({}, {}, {}, {})", r, g, b, a)
         })
-        .unwrap_or(hex.to_string())
+        .unwrap_or(hex)
 }
 
 #[cfg(test)]
