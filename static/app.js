@@ -61,27 +61,33 @@ const dataFor = function (languages) {
   };
 };
 
-
 const init = function () {
+  const chart = document.getElementById("chart");
   const label = document.getElementById("desc");
   label.hidden = true;
-  const chart = document.getElementById("chart");
   fetch(`/${chart.dataset.userName}.json${window.location.search}`).then(
-    (response) =>
+    (response) => {
+      if (!response.ok) {
+        label.innerText = `Error loading data from GitHub: is ${chart.dataset.userName} the right username?`;
+        label.hidden = false;
+        return;
+      }
       response.json().then((astronomer) => {
         new Chart(
           chart,
-          configFor(astronomer.name, astronomer.stars, dataFor(astronomer.languages)),
+          configFor(
+            astronomer.name,
+            astronomer.stars,
+            dataFor(astronomer.languages),
+          ),
         );
         label.hidden = false;
-      }),
+      });
+    },
   );
 };
 
 window.onload = () => {
-  if (document.readyState !== "loading") {
-    init();
-  } else {
-    document.addEventListener("DOMContentLoaded", init);
-  }
+  if (document.readyState !== "loading") return init();
+  document.addEventListener("DOMContentLoaded", init);
 };

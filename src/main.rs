@@ -1,10 +1,10 @@
+use actix_files::Files;
 use actix_web::{
     get, http::header::ContentType, web, App, Error, HttpResponse, HttpServer, ResponseError,
 };
 use derive_more::Display;
 use log::{error, info};
 
-const APP: &str = include_str!("app.js");
 const TEMPLATE: &str = include_str!("index.html");
 const DEFAULT_USER_PATH: &str = "/cuducos";
 const TOKEN: &str = "ASTRONOMER_GITHUB_TOKEN";
@@ -31,13 +31,6 @@ impl ResponseError for HttpError {
             }
         }
     }
-}
-
-#[get("/app.js")]
-async fn js() -> Result<HttpResponse, Error> {
-    Ok(HttpResponse::Ok()
-        .insert_header(ContentType(mime::APPLICATION_JAVASCRIPT))
-        .body(APP.replace('\n', "").replace("  ", "")))
 }
 
 #[get("/{name}.json")]
@@ -99,11 +92,11 @@ async fn main() -> std::io::Result<()> {
     info!("Starting server at http://0.0.0.0:{}", port);
     HttpServer::new(move || {
         App::new()
-            .service(js)
             .service(api)
             .service(user)
             .service(redirect)
             .service(home)
+            .service(Files::new("/static", "./static"))
     })
     .bind(("0.0.0.0", port))?
     .run()
