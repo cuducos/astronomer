@@ -14,8 +14,9 @@ Astronomer accepts URL query parameters:
 
 * `exclude` as a comma-separated list of programming languages to ignore (they should be written as they show up in the chart, and it is case-sensitive)
 * `top` to limit the number of programming languages to show.
+* `status` to filter either `archived` repositories or `active` ones
 
-For example, to get @cuducos's top 5 programming languages, excluding HTML and Mako: [`https://astronomer.onrender.com/cuducos?exclude=HTML, Mako&top=5`](https://astronomer.onrender.com/cuducos?exclude=HTML,%20Mako&top=5).
+For example, to get @cuducos's top 5 programming languages, excluding HTML and Mako: [`https://astronomer.onrender.com/cuducos?exclude=HTML, Mako&top=5&status=active`](https://astronomer.onrender.com/cuducos?exclude=HTML,%20Mako&top=5&status=active).
 
 ### API
 
@@ -23,4 +24,4 @@ Wanna use the data without Astronomer's visualization? No problem, just append `
 
 * [`https://astronomer.onrender.com/cuducos.json`](https://astronomer.onrender.com/cuducos.json)
 
-* [`https://astronomer.onrender.com/cuducos.json?exclude=HTML, Mako&top=5`](https://astronomer.onrender.com/cuducos.json?exclude=HTML,%20Mako&top=5)
+* [`https://astronomer.onrender.com/cuducos.json?exclude=HTML, Mako&top=5&status=active`](https://astronomer.onrender.com/cuducos.json?exclude=HTML,%20Mako&top=5&status=active)

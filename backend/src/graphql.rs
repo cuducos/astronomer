@@ -6,6 +6,8 @@ const QUERY: &str = include_str!("query.graphql");
 pub struct Variables {
     pub login: String,
     pub cursor: Option<String>,
+    #[serde(rename = "isArchived")]
+    pub is_archived: Option<bool>,
 }
 
 #[derive(Debug, Serialize)]
@@ -15,10 +17,14 @@ pub struct Request {
 }
 
 impl Request {
-    pub fn new(login: String, cursor: Option<String>) -> Self {
+    pub fn new(login: String, is_archived: Option<bool>, cursor: Option<String>) -> Self {
         Self {
             query: QUERY.to_string(),
-            variables: Variables { login, cursor },
+            variables: Variables {
+                login,
+                cursor,
+                is_archived,
+            },
         }
     }
 }

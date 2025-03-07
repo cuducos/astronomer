@@ -168,10 +168,10 @@ impl User {
         }
     }
 
-    async fn load(&mut self, token: String) -> Result<(), Error> {
+    async fn load(&mut self, is_archived: Option<bool>, token: String) -> Result<(), Error> {
         let mut cursor: Option<String> = None;
         loop {
-            let query = graphql::Request::new(self.login.to_string(), cursor);
+            let query = graphql::Request::new(self.login.to_string(), is_archived, cursor);
             let body = serde_json::to_string(&query).map_err(Error::Serializer)?;
             let resp = reqwest::Client::new()
                 .post(API_URL)
@@ -203,9 +203,13 @@ impl User {
 }
 
 #[cached(time = 86400, result = true)] // one day cache
-async fn cached_json_for(login: String, token: String) -> Result<User, Error> {
+async fn cached_json_for(
+    login: String,
+    is_archived: Option<bool>,
+    token: String,
+) -> Result<User, Error> {
     let mut user = User::new(login);
-    user.load(token).await?;
+    user.load(is_archived, token).await?;
     Ok(user)
 }
 
@@ -213,15 +217,32 @@ async fn cached_json_for(login: String, token: String) -> Result<User, Error> {
 pub struct RawConfig {
     exclude: Option<String>,
     top: Option<usize>,
+    status: Option<String>,
+}
+
+pub enum Status {
+    All,
+    Active,
+    Archived,
 }
 
 pub struct Config {
     exclude: HashSet<String>,
     top: usize,
+    status: Status,
 }
 
 impl Config {
     pub fn from_raw(config: &RawConfig) -> Self {
+        let status = config
+            .status
+            .as_ref()
+            .map(|value| match value.to_lowercase().as_str() {
+                "archived" => Status::Archived,
+                "active" => Status::Active,
+                _ => Status::All,
+            })
+            .unwrap_or(Status::All);
         Self {
             exclude: config
                 .exclude
@@ -229,12 +250,18 @@ impl Config {
                 .map(|s| s.split(',').map(|s| s.trim().to_string()).collect())
                 .unwrap_or_default(),
             top: config.top.unwrap_or(0),
+            status,
         }
     }
 }
 
 pub async fn json_for(login: String, token: String, config: Config) -> Result<String, Error> {
-    let mut user = cached_json_for(login, token).await?;
+    let is_archived = match config.status {
+        Status::All => None,
+        Status::Active => Some(false),
+        Status::Archived => Some(true),
+    };
+    let mut user = cached_json_for(login, is_archived, token).await?;
     if !config.exclude.is_empty() {
         user.languages.retain(|l| !config.exclude.contains(&l.name));
     }

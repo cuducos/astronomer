@@ -1,4 +1,4 @@
-query ($login: String!, $cursor: String) {
+query ($login: String!, $isArchived: Boolean, $cursor: String) {
   user(login: $login) {
     name
     repositories(
@@ -6,6 +6,7 @@ query ($login: String!, $cursor: String) {
       after: $cursor
       ownerAffiliations: OWNER
       privacy: PUBLIC
+      isArchived: $isArchived
     ) {
       pageInfo {
         hasNextPage
