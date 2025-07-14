@@ -18,7 +18,7 @@ pub fn color(hex: String, position: usize, total: usize) -> String {
         .map(|(r, g, b)| {
             let p = 1.0 - (position as f32) / ((total - 1) as f32);
             let a = 0.25 + p * 0.75;
-            format!("rgba({}, {}, {}, {})", r, g, b, a)
+            format!("rgba({r}, {g}, {b}, {a})")
         })
         .unwrap_or(hex)
 }
