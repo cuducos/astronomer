@@ -7,4 +7,8 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [dependencies]
+serde = { version = "1.0.219", features = ["derive"] }
+serde-wasm-bindgen = "0.6.5"
+shared = { path = "../shared" }
 wasm-bindgen = "0.2"
+web-sys = { version = "0.3.77", features = ["console"] }

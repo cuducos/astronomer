@@ -1,4 +1,4 @@
-import init, { color } from "./frontend.js";
+import init, { data_for } from "./frontend.js";
 
 const configFor = function (name, stars, data) {
   return {
@@ -30,28 +30,6 @@ const configFor = function (name, stars, data) {
   };
 };
 
-const dataFor = function (languages) {
-  return {
-    labels: languages.map((language) => language.name),
-    datasets: languages
-      .map((language, idx) => {
-        return language.source.map((source, i) => {
-          let data = Array(languages.length).fill(0);
-          data[idx] = source.stars;
-          return {
-            label: source.repository,
-            data: data,
-            backgroundColor: color(language.color, i, language.source.length),
-            borderRadius: 2,
-            language: language.name,
-            total: language.stars,
-          };
-        });
-      })
-      .flat(),
-  };
-};
-
 const run = function () {
   const chart = document.getElementById("chart");
   const label = document.getElementById("desc");
@@ -69,7 +47,7 @@ const run = function () {
           configFor(
             astronomer.name,
             astronomer.stars,
-            dataFor(astronomer.languages),
+            data_for(astronomer.languages),
           ),
         );
         label.hidden = false;

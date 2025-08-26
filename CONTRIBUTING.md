@@ -9,7 +9,7 @@ The Rust codebase has frontend and backend code.
 Maybe you'll need `cargo install wasm-bindgen-cli`:
 
 ```console
-$ cargo build --target wasm32-unknown-unknown --workspace --exclude backend --release
+$ cargo build --target wasm32-unknown-unknown --workspace --exclude backend --exclude shared --release
 $ wasm-bindgen --target web --out-dir static/ target/wasm32-unknown-unknown/release/frontend.wasm 
 ```
 
