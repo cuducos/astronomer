@@ -22,7 +22,7 @@ impl ResponseError for HttpError {
     fn error_response(&self) -> HttpResponse {
         match self {
             HttpError::MissingToken => {
-                error!("Missing {} environment variable.", TOKEN);
+                error!("Missing {TOKEN} environment variable.");
                 HttpResponse::InternalServerError().finish()
             }
             HttpError::GitHubClientError => {
@@ -80,7 +80,7 @@ async fn home() -> Result<HttpResponse, Error> {
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
     if std::env::var(TOKEN).is_err() {
-        error!("Missing {} environment variable.", TOKEN);
+        error!("Missing {TOKEN} environment variable.");
         std::process::exit(1);
     }
     let port = std::env::var("PORT")
@@ -89,7 +89,7 @@ async fn main() -> std::io::Result<()> {
                 .map_err(|_| std::env::VarError::NotPresent)
         })
         .unwrap_or(8000);
-    info!("Starting server at http://0.0.0.0:{}", port);
+    info!("Starting server at http://0.0.0.0:{port}");
     HttpServer::new(move || {
         App::new()
             .service(api)
