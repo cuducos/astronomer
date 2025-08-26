@@ -1,5 +1,6 @@
 use cached::proc_macro::cached;
 use serde::{Deserialize, Serialize};
+use shared::{Language, Partial, Repository};
 use std::iter::FromIterator;
 use std::{
     collections::{HashMap, HashSet},
@@ -26,54 +27,6 @@ impl Display for Error {
             Error::HttpStatus(status) => write!(f, "HTTP status error: {status}"),
         }
     }
-}
-
-#[derive(Clone, Serialize)]
-struct Partial {
-    repository: String,
-    stars: f64,
-}
-
-#[derive(Clone, Serialize)]
-struct Language {
-    name: String,
-    stars: f64,
-    color: String,
-    source: Vec<Partial>,
-
-    #[serde(skip)]
-    lines: u32,
-}
-
-impl Language {
-    fn new(name: String, color: String) -> Self {
-        Self {
-            name,
-            stars: 0.0,
-            color,
-            source: vec![],
-            lines: 0,
-        }
-    }
-
-    fn merge(&self, old: &Self) -> Self {
-        let mut source = self.source.clone();
-        source.extend(old.source.clone());
-        Self {
-            name: self.name.clone(),
-            stars: self.stars + old.stars,
-            lines: self.lines + old.lines,
-            color: old.color.clone(),
-            source,
-        }
-    }
-}
-
-#[derive(Clone, Serialize)]
-struct Repository {
-    name: String,
-    languages: Vec<Language>,
-    stars: u32,
 }
 
 #[derive(Clone, Serialize)]

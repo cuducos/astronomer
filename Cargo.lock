@@ -346,6 +346,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "shared",
 ]
 
 [[package]]
@@ -1718,6 +1719,13 @@ dependencies = [
  "cfg-if",
  "cpufeatures",
  "digest",
+]
+
+[[package]]
+name = "shared"
+version = "0.1.0"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
